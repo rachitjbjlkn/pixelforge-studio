@@ -823,6 +823,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 // ══════════════════════════════════════════════
 let currentFile = null;
 let resultFilename = null;
+let resultImageData = null;
 let currentFilter = 'none';
 let activeTab = 'original';
 
@@ -914,7 +915,8 @@ async function processImage() {
     if (data.success) {
       resultFilename = data.filename;
       const resultImg = document.getElementById('result-img');
-      resultImg.src = data.url + '?t=' + Date.now();
+      resultImg.src = data.image_data;
+      resultImageData = data.image_data;
       resultImg.style.display = 'block';
       resultImg.classList.add('visible');
       document.getElementById('btn-download').style.display = 'inline-flex';
@@ -1020,12 +1022,12 @@ function resetControls() {
 }
 
 function downloadResult() {
-  if (!resultFilename) return;
+  if (!resultImageData) return;
   const a = document.createElement('a');
-  a.href = '/download/' + resultFilename + '/';
-  a.download = resultFilename;
+  a.href = resultImageData;
+  a.download = 'pixelforge_result.jpg';
   a.click();
-}
+   }
 
 function newImage() {
   currentFile = null; resultFilename = null;
