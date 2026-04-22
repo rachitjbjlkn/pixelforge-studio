@@ -913,7 +913,6 @@ async function processImage() {
     showProgress(false);
 
     if (data.success) {
-      resultFilename = data.filename;
       const resultImg = document.getElementById('result-img');
       resultImg.src = data.image_data;
       resultImageData = data.image_data;
