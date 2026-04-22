@@ -912,9 +912,9 @@ async function processImage() {
     showProgress(false);
 
     if (data.success) {
-      resultFilename = data.image_data;
+      resultFilename = data.filename;
       const resultImg = document.getElementById('result-img');
-      resultImg.src = data.image_data;
+      resultImg.src = data.url + '?t=' + Date.now();
       resultImg.style.display = 'block';
       resultImg.classList.add('visible');
       document.getElementById('btn-download').style.display = 'inline-flex';
@@ -956,7 +956,7 @@ function showTab(tab) {
     proc.style.display = 'none';
   } else {
     orig.style.display = 'none';
-    if (resultFilename) { proc.style.display = 'block'; proc.src = resultFilename; proc.classList.add('visible'); }
+    if (resultFilename) { proc.style.display = 'block'; proc.classList.add('visible'); }
   }
 }
 
@@ -1022,8 +1022,8 @@ function resetControls() {
 function downloadResult() {
   if (!resultFilename) return;
   const a = document.createElement('a');
-  a.href = resultFilename;
-  a.download = 'processed.' + document.getElementById('ctrl-format').value.toLowerCase().replace('jpeg','jpg');
+  a.href = '/download/' + resultFilename + '/';
+  a.download = resultFilename;
   a.click();
 }
 
@@ -1033,9 +1033,7 @@ function newImage() {
   document.getElementById('stats-bar').style.display = 'none';
   document.getElementById('btn-download').style.display = 'none';
   document.getElementById('preview-img').classList.remove('visible');
-  const resultImg = document.getElementById('result-img');
-  resultImg.classList.remove('visible');
-  resultImg.src = '';
+  document.getElementById('result-img').classList.remove('visible');
   document.getElementById('placeholder').style.display = 'block';
   fileInput.value = '';
   resetControls();
