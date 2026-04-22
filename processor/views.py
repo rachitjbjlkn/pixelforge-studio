@@ -160,11 +160,9 @@ def process_image(request):
         if out_format == 'JPEG' and img.mode in ('RGBA', 'P'):
             img = img.convert('RGB')
 
-        # Save
-        uid = uuid.uuid4().hex[:10]
-        ext = out_format.lower().replace('jpeg', 'jpg')
-        filename = f'processed_{uid}.{ext}'
-        out_path = Path(settings.MEDIA_ROOT) / 'processed' / filename
+        # Save to memory (no disk needed)
+        import base64
+        buffer = BytesIO()
 
         save_kwargs = {'dpi': (dpi_val, dpi_val)}
         if out_format in ('JPEG', 'WEBP'):
@@ -173,16 +171,18 @@ def process_image(request):
         elif out_format == 'PNG':
             save_kwargs['optimize'] = True
 
-        img.save(str(out_path), format=out_format, **save_kwargs)
+        img.save(buffer, format=out_format, **save_kwargs)
+        buffer.seek(0)
+        img_bytes = buffer.getvalue()
 
-        # Stats
-        file_size = out_path.stat().st_size
+        img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+        mime = 'image/jpeg' if out_format == 'JPEG' else f'image/{out_format.lower()}'
         final_w, final_h = img.size
+        file_size = len(img_bytes)
 
         return JsonResponse({
             'success': True,
-            'filename': filename,
-            'url': f'/media/processed/{filename}',
+            'image_data': f'data:{mime};base64,{img_base64}',
             'width': final_w,
             'height': final_h,
             'format': out_format,
