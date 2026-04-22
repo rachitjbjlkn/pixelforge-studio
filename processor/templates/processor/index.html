@@ -912,9 +912,9 @@ async function processImage() {
     showProgress(false);
 
     if (data.success) {
-      resultFilename = data.filename;
+      resultFilename = data.image_data;
       const resultImg = document.getElementById('result-img');
-      resultImg.src = data.url + '?t=' + Date.now();
+      resultImg.src = data.image_data;
       resultImg.style.display = 'block';
       resultImg.classList.add('visible');
       document.getElementById('btn-download').style.display = 'inline-flex';
@@ -956,7 +956,7 @@ function showTab(tab) {
     proc.style.display = 'none';
   } else {
     orig.style.display = 'none';
-    if (resultFilename) { proc.style.display = 'block'; proc.classList.add('visible'); }
+    if (resultFilename) { proc.style.display = 'block'; proc.src = resultFilename; proc.classList.add('visible'); }
   }
 }
 
@@ -1022,8 +1022,8 @@ function resetControls() {
 function downloadResult() {
   if (!resultFilename) return;
   const a = document.createElement('a');
-  a.href = '/download/' + resultFilename + '/';
-  a.download = resultFilename;
+  a.href = resultFilename;
+  a.download = 'processed.' + document.getElementById('ctrl-format').value.toLowerCase();
   a.click();
 }
 
