@@ -12,6 +12,10 @@ from django.conf import settings
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import PIL.Image
 
+SUPPORTED_UPLOAD_FORMATS = {
+    'JPEG', 'JPG', 'PNG', 'WEBP', 'BMP', 'GIF', 'TIFF', 'ICO',
+    'PPM', 'PCX'
+}
 
 def index(request):
     return render(request, 'processor/index.html')
@@ -27,16 +31,39 @@ def process_image(request):
         return JsonResponse({'error': 'No image uploaded'}, status=400)
 
     try:
+        uploaded.seek(0)
+        file_content = uploaded.read()
+        uploaded.seek(0)
+
+        if uploaded.name.lower().endswith('.svg') or uploaded.content_type == 'image/svg+xml':
+            import base64
+            img_base64 = base64.b64encode(file_content).decode('utf-8')
+            return JsonResponse({
+                'success': True,
+                'image_data': f'data:image/svg+xml;base64,{img_base64}',
+                'width': 0,
+                'height': 0,
+                'format': 'SVG',
+                'quality': 100,
+                'dpi': 72,
+                'file_size': _human_size(len(file_content)),
+                'original_width': 0,
+                'original_height': 0,
+            })
+
         img = Image.open(uploaded)
         original_format = img.format or 'PNG'
         original_mode = img.mode
         orig_w, orig_h = img.size
 
-        # Convert to RGBA for processing
-        if img.mode not in ('RGB', 'RGBA'):
-            img = img.convert('RGB')
+        if original_format not in SUPPORTED_UPLOAD_FORMATS:
+            return JsonResponse({'error': f'Unsupported format: {original_format}. Supported: JPEG, PNG, WEBP, BMP, GIF, TIFF, ICO'}, status=400)
 
         ops = request.POST
+        dpi_val = int(ops.get('dpi', 72) or 72)
+
+        if img.mode not in ('RGB', 'RGBA'):
+            img = img.convert('RGB')
 
         # ── 1. RESIZE / WIDTH / HEIGHT ───────────────────────────────────────
         new_w = int(ops.get('width', orig_w) or orig_w)
@@ -152,9 +179,6 @@ def process_image(request):
 
         quality = int(ops.get('quality', 85) or 85)
         quality = max(1, min(100, quality))
-
-        # ── DPI / RESOLUTION ─────────────────────────────────────────────────
-        dpi_val = int(ops.get('dpi', 72) or 72)
 
         # Fix mode for JPEG
         if out_format == 'JPEG' and img.mode in ('RGBA', 'P'):

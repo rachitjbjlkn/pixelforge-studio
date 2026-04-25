@@ -634,12 +634,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
     <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <span class="upload-icon">🖼️</span>
       <h3>Drop Your Image Here</h3>
-      <p>PNG · JPEG · WEBP · BMP · GIF &nbsp;·&nbsp; Up to 50 MB</p>
+      <p>All Image Formats: SVG, PNG, JPEG, WEBP, BMP, GIF, TIFF, ICO, PPM, PCX &nbsp;·&nbsp; Up to 50 MB</p>
       <br>
       <button class="btn" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
         📁 Browse Files
       </button>
-      <input type="file" id="file-input" accept="image/*">
+      <input type="file" id="file-input" accept="image/svg+xml,image/png,image/jpeg,image/webp,image/bmp,image/gif,image/tiff,image/x-icon,image/x-pcx,image/x-portable-pixmap,.svg,.png,.jpg,.jpeg,.webp,.bmp,.gif,.tiff,.tif,.ico,.pcx,.ppm">
     </div>
   </div>
 
